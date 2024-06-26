@@ -11,3 +11,5 @@ Route::get('/user', function (Request $request) {
 Route::post('/approval/create', [ApprovalController::class, 'create']);
 Route::post('/approval/process', [ApprovalController::class, 'process']);
 Route::post('/approval/detail', [ApprovalController::class, 'detail']);
+Route::post('approval/get-by-approver', [ApprovalController::class, 'approver']);
+Route::post('approval/get-by-requester', [ApprovalController::class, 'requester']);
