@@ -16,7 +16,7 @@ class ApprovalController extends Controller
         $this->approvalService = $approvalService;
     }
 
-    public function getByApprover(Request $request)
+    public function approver(Request $request)
     {
         $status = $request->input('status');
         $keyword = $request->input('keyword');
@@ -47,7 +47,7 @@ class ApprovalController extends Controller
         ], 200);
     }
 
-    public function getByRequester(Request $request)
+    public function requester(Request $request)
     {
         try {
             $validated = $request->validate([
