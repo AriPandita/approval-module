@@ -9,3 +9,5 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/approval/create', [ApprovalController::class, 'create']);
+Route::post('/approval/process', [ApprovalController::class, 'process']);
+Route::post('/approval/detail', [ApprovalController::class, 'detail']);
