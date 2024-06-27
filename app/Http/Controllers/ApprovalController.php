@@ -16,6 +16,85 @@ class ApprovalController extends Controller
         $this->approvalService = $approvalService;
     }
 
+    public function approver(Request $request)
+    {
+        $status = $request->input('status');
+        $keyword = $request->input('keyword');
+    
+        $data = $this->approvalService->getByApprover($status, $keyword);
+        $items = $data->items();
+        $responseData = collect($items)->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'data_id' => $item->data_id,
+                'user_id_start' => $item->user_id_start,
+                'user_id_approver' => $item->user_id_approver,
+                'module' => $item->module,
+                'sub_modul' => $item->sub_modul,
+                'action' => $item->action,
+                'data' => $item->data,
+                'status' => $item->status,
+                'information' => $item->information,
+                'date_process' => date('M d, Y', strtotime($item->date_process)),
+                'created_date' => date('M d, Y', strtotime($item->created_at)),
+            ];
+        });
+    
+        return response()->json([
+            'responseCode' => 200,
+            'responseMessage' => 'Successfully get data',
+            'responseData' => $responseData,
+        ], 200);
+    }
+
+    public function requester(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'user_id_start' => 'required|integer',
+            ]);
+
+            $user_id_start = $validated['user_id_start'];
+            $status = $request->input('status');
+            $keyword = $request->input('keyword');
+
+            $data = $this->approvalService->getByRequester($user_id_start, $status, $keyword);
+
+            // Proses data paginasi
+            $items = $data->items();
+            $responseData = collect($items)->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'data_id' => $item->data_id,
+                    'user_id_start' => $item->user_id_start,
+                    'user_id_approver' => $item->user_id_approver,
+                    'module' => $item->module,
+                    'sub_modul' => $item->sub_modul,
+                    'action' => $item->action,
+                    'data' => $item->data,
+                    'status' => $item->status,
+                    'information' => $item->information,
+                    'date_process' => date('M d, Y', strtotime($item->date_process)),
+                    'created_date' => date('M d, Y', strtotime($item->created_at)),
+                ];
+            });
+
+            // Return JSON response
+            return response()->json([
+                'responseCode' => 200,
+                'responseMessage' => 'Successfully get data',
+                'responseData' => $responseData,
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'responseCode' => 500,
+                'responseMessage' => 'Failed get data',
+                'responseData' => [$th->getMessage()]
+            ], 500);
+        }
+    }
+
     public function create(Request $request)
     {
         try {

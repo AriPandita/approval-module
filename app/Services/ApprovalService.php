@@ -6,6 +6,47 @@ use App\Models\Approval;
 
 class ApprovalService
 {
+
+    public function getByApprover($status, $keyword)
+    {
+        $query = Approval::query();
+
+        if (!is_null($status)) {
+            $query->where('status', $status);
+        }
+
+        if (!empty($keyword)) {
+            $query->where(function($q) use ($keyword) {
+                $q->where('module', 'like', "%$keyword%")
+                  ->orWhere('sub_modul', 'like', "%$keyword%")
+                  ->orWhere('action', 'like', "%$keyword%");
+            });
+        }
+
+        return $query->paginate();
+    }
+
+    public function getByRequester(int $user_id_start, $status, $keyword)
+    {
+
+        $query = Approval::query()->where('user_id_start', $user_id_start);
+
+        if (!is_null($status)) {
+            $query->where('status', $status);
+        }
+
+        if (!empty($keyword)) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('module', 'like', "%$keyword%")
+                ->orWhere('sub_modul', 'like', "%$keyword%")
+                ->orWhere('action', 'like', "%$keyword%");
+            });
+        }
+
+        return $query->paginate();
+    }
+
+
     public function createApproval(array $data)
     {
         // Set default status to 0
