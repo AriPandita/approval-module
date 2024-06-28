@@ -7,45 +7,61 @@ use App\Models\Approval;
 class ApprovalService
 {
 
-    public function getByApprover($status, $keyword)
+
+    public function getByApprover($status, $keyword, $limit=null) // atur limit untuk pagination
     {
         $query = Approval::query();
 
-        if (!is_null($status)) {
+        if (isset($status)) {
             $query->where('status', $status);
         }
 
-        if (!empty($keyword)) {
+        if ($keyword) {
             $query->where(function($q) use ($keyword) {
-                $q->where('module', 'like', "%$keyword%")
-                  ->orWhere('sub_modul', 'like', "%$keyword%")
-                  ->orWhere('action', 'like', "%$keyword%");
-            });
-        }
-
-        return $query->paginate();
-    }
-
-    public function getByRequester(int $user_id_start, $status, $keyword)
-    {
-
-        $query = Approval::query()->where('user_id_start', $user_id_start);
-
-        if (!is_null($status)) {
-            $query->where('status', $status);
-        }
-
-        if (!empty($keyword)) {
-            $query->where(function ($q) use ($keyword) {
                 $q->where('module', 'like', "%$keyword%")
                 ->orWhere('sub_modul', 'like', "%$keyword%")
                 ->orWhere('action', 'like', "%$keyword%");
             });
         }
 
-        return $query->paginate();
+        if ($limit) {
+            return $query->simplePaginate($limit);
+        } else {
+            return $query->get();
+        }
     }
 
+    public function getByRequester($user_id_start, $status, $keyword, $limit=null) // atur limit untuk pagination
+    {
+        $userExists = Approval::where('user_id_start', $user_id_start)->exists();
+        if (!$userExists) {
+            throw new \Exception('User ID does not exist.');
+        }
+        
+        $query = Approval::query()->where('user_id_start', $user_id_start);
+        
+        if (isset($status)) {
+            $query->where('status', $status);
+        }
+
+        if ($keyword) {
+            $query->where(function($q) use ($keyword) {
+                $q->where('module', 'like', "%$keyword%")
+                ->orWhere('sub_modul', 'like', "%$keyword%")
+                ->orWhere('action', 'like', "%$keyword%");
+            });
+        }
+
+        if ($limit && $limit != null) {
+            $data = $query->simplePaginate($limit);
+        } else {
+            $data = $query->get();
+        }
+
+        return $data;
+    }
+
+    
 
     public function createApproval(array $data)
     {
